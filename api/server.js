@@ -20,21 +20,28 @@ const user = Joi.object().keys({
 });
 
 router
+  .get('users/:rfid', async (ctx) => {
+    ctx.body = await ctx.app.users.find({ rfid: ctx.params.rfid });
+  })
   .get('/users', async (ctx) => {
     ctx.body = await ctx.app.users.find().toArray();
-  })
+  });
+
+router
   .put('/users/:rfid', async (ctx) => {
+    const { body } = await ctx.request;
     ctx.body = await ctx.app.users.findOneAndUpdate({
-      rfid: ctx.request.body.rfid,
+      rfid: body.rfid,
     },
     { $inc: { kaffeScore: 1 } });
-  })
+  });
+
+router
   .post('/users', async (ctx) => {
     const { body } = await ctx.request;
-    ctx.status = 200;
     const valid = check(body, user)
          && !(await ctx.app.users.findOne({
-           user: body.rfid,
+           rfid: body.rfid,
          }));
     if (valid) {
       await ctx.app.users.insertOne({
@@ -44,8 +51,11 @@ router
         rfid: body.rfid,
         kaffeScore: 0,
       });
+      ctx.body = { created: true, body };
+      ctx.status = 201;
     } else {
       ctx.status = 400;
+      ctx.body = { created: false };
     }
   });
 
