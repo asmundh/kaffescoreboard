@@ -16,7 +16,7 @@ const user = Joi.object().keys({
   userFirstName: Joi.string().min(2).max(20).required(),
   userLastName: Joi.string().min(2).max(30).required(),
   study: Joi.string().valid('komtek', 'data').required(),
-  rfid: Joi.strict().required(),
+  rfid: Joi.number().required(),
 });
 
 router
@@ -25,12 +25,13 @@ router
   })
   .put('/users/:rfid', async (ctx) => {
     ctx.body = await ctx.app.users.findOneAndUpdate({
-      rfid: ctx.body.rfid,
+      rfid: ctx.request.body.rfid,
     },
     { $inc: { kaffeScore: 1 } });
   })
   .post('/users', async (ctx) => {
-    const { body } = ctx.request;
+    const { body } = await ctx.request;
+    ctx.status = 200;
     const valid = check(body, user)
          && !(await ctx.app.users.findOne({
            user: body.rfid,
@@ -49,7 +50,7 @@ router
   });
 
 app.use(logger());
-app.use(bodyParser, json());
+app.use(bodyParser());
 app.use(cors());
 
 app.use(router.routes(), router.allowedMethods());
