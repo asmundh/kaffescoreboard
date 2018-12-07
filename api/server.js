@@ -17,13 +17,13 @@ const user = Joi.object().keys({
   userLastName: Joi.string().min(2).max(30).required(),
   study: Joi.string().valid('komtek', 'data').required(),
   rfid: Joi.number().required(),
+  coffeesTracted: Joi.number().required(),
 });
 
+// GET user by RFID and all users
 router
   .get('/users/:rfid', async (ctx) => {
-    console.log('by rfid');
     ctx.params.rfid = parseInt(ctx.params.rfid, 10);
-    console.log(ctx.params);
     ctx.body = await ctx.app.users.findOne({ rfid: ctx.params.rfid });
   })
   .get('/users', async (ctx) => {
@@ -32,7 +32,7 @@ router
   });
 
 router
-  .put('/users/:rfid', async (ctx) => {
+  .post('/users/:rfid', async (ctx) => {
     // const { body } = ctx.request;
     const rfidToFind = await parseInt(ctx.params.rfid, 10);
     await ctx.app.users.findOneAndUpdate({
