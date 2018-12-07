@@ -20,20 +20,26 @@ const user = Joi.object().keys({
 });
 
 router
-  .get('users/:rfid', async (ctx) => {
-    ctx.body = await ctx.app.users.find({ rfid: ctx.params.rfid });
+  .get('/users/:rfid', async (ctx) => {
+    console.log('by rfid');
+    ctx.params.rfid = parseInt(ctx.params.rfid, 10);
+    console.log(ctx.params);
+    ctx.body = await ctx.app.users.findOne({ rfid: ctx.params.rfid });
   })
   .get('/users', async (ctx) => {
+    console.log('By all');
     ctx.body = await ctx.app.users.find().toArray();
   });
 
 router
   .put('/users/:rfid', async (ctx) => {
-    const { body } = await ctx.request;
-    ctx.body = await ctx.app.users.findOneAndUpdate({
-      rfid: body.rfid,
+    // const { body } = ctx.request;
+    const rfidToFind = await parseInt(ctx.params.rfid, 10);
+    await ctx.app.users.findOneAndUpdate({
+      rfid: rfidToFind,
     },
     { $inc: { kaffeScore: 1 } });
+    ctx.body = await ctx.app.users.findOne({ rfid: rfidToFind });
   });
 
 router
