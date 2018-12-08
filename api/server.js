@@ -25,6 +25,10 @@ router
   .get('/users/:rfid', async (ctx) => {
     ctx.params.rfid = parseInt(ctx.params.rfid, 10);
     ctx.body = await ctx.app.users.findOne({ rfid: ctx.params.rfid });
+    if (ctx.body == null) {
+      ctx.status = 404;
+      ctx.body = { error: 'No such user' };
+    }
   })
   .get('/users', async (ctx) => {
     console.log('By all');
@@ -35,6 +39,7 @@ router
   .post('/users/:rfid', async (ctx) => {
     // const { body } = ctx.request;
     const rfidToFind = await parseInt(ctx.params.rfid, 10);
+    console.log(rfidToFind);
     await ctx.app.users.findOneAndUpdate({
       rfid: rfidToFind,
     },
