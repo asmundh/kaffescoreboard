@@ -6,6 +6,7 @@ import logger from 'koa-logger';
 import Joi from 'joi';
 import Mongo from './mongo';
 
+
 const app = new Koa();
 const router = new Router();
 Mongo(app);
@@ -19,7 +20,6 @@ const user = Joi.object().keys({
   rfid: Joi.number().required(),
   coffeesTracted: Joi.number().required(),
 });
-
 // GET user by RFID and all users
 router
   .get('/users/:rfid', async (ctx) => {

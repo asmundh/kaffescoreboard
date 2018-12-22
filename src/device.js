@@ -14,8 +14,8 @@ export default class Device extends EventEmitter {
   commands = {
     BUZZER: 0x89,
     MIFARE: {
-      GET_SNR: 0x25
-    }
+      GET_SNR: 0x25,
+    },
   };
 
   replies = {
@@ -37,7 +37,7 @@ export default class Device extends EventEmitter {
   }
 
   validate = (data, checksum) => {
-    const dataDecimal = data.map((item) => parseInt(item, 16));
+    const dataDecimal = data.map(item => parseInt(item, 16));
     const calculatedChecksum = dataDecimal
       .reduce((previousValue, currentValue) => previousValue ^ currentValue);
     return Math.abs(calculatedChecksum % 255) === parseInt(checksum, 16);
