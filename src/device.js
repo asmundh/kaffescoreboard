@@ -5,7 +5,7 @@ export default class Device extends EventEmitter {
   constructor(port) {
     super();
     this.port = port;
-    const Delimiter = SerialPort.parsers.Delimiter;
+    const { Delimiter } = SerialPort.parsers;
     this.parser = this.port.pipe(new Delimiter({ delimiter: [0xBB] }));
     this.parser.on('data', this.onData);
     this.scan();
@@ -48,7 +48,6 @@ export default class Device extends EventEmitter {
     for (let i = 0; i < response.length; i += 1) {
       hexValues.push(response[i].toString(16));
     }
-    console.log(response);
     const stationId = hexValues[1];
     const length = hexValues[2];
     const status = hexValues[3];
@@ -63,7 +62,7 @@ export default class Device extends EventEmitter {
 
   createMessage = (command, data) => {
     const payload = this.calculateChecksum(command, data);
-    return new Buffer([0xAA, 0x00, ...payload, 0xBB]);
+    return Buffer.from([0xAA, 0x00, ...payload, 0xBB]);
   }
 
   close = () => {
