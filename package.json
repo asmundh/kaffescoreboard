@@ -4,7 +4,7 @@
   "description": "API for scoreboard for hvem som brygger mest kaffe på Abakus sitt kontor.",
   "main": "src/index.js",
   "scripts": {
-    "start": "nodemon --exec babel-node src/index.js",
+    "start": "nodemon --exec babel-node api/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "webserver": "nodemon --exec babel-node api/server.js"
   },

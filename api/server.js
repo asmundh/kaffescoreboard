@@ -17,9 +17,10 @@ const user = Joi.object().keys({
   userFirstName: Joi.string().min(2).max(20).required(),
   userLastName: Joi.string().min(2).max(30).required(),
   study: Joi.string().valid('komtek', 'data').required(),
-  rfid: Joi.number().required(),
-  coffeesTracted: Joi.number().required(),
+  rfid: Joi.number().min(0).required(),
+  coffeesTracted: Joi.number().min(0).required(),
 });
+
 // GET user by RFID and all users
 router
   .get('/users/:rfid', async (ctx) => {
