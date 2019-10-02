@@ -7,7 +7,10 @@ const MONGO_URL_NTNU = 'mongodb://127.0.0.1:27017';
 export default function (app) {
   MongoClient.connect(
     MONGO_URL_NTNU,
-    { useNewUrlParser: true },
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
   )
     .then((connection) => {
       app.db = connection.db('kaffeScoreboard');

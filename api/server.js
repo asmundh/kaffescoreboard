@@ -13,7 +13,7 @@ Mongo(app);
 // GET user by RFID and all users
 router
   .get('/users/:rfid', async (ctx) => {
-    ctx.params.rfid = parseInt(ctx.params.rfid, 10);
+    ctx.params.rfid = ctx.params.rfid;
     ctx.body = await ctx.app.users.findOne({ rfid: ctx.params.rfid });
     if (ctx.body == null) {
       ctx.status = 404;
@@ -25,12 +25,11 @@ router
     ctx.body = await ctx.app.users.find().toArray();
   });
 
-
 // Increment a users score. Increments "kaffeScore" by 1.
 router
   .post('/users/:rfid', async (ctx) => {
     // const { body } = ctx.request;
-    const rfidToFind = await parseInt(ctx.params.rfid, 10);
+    const rfidToFind = ctx.params.rfid;
     console.log(rfidToFind);
     await ctx.app.users.findOneAndUpdate({
       rfid: rfidToFind,
