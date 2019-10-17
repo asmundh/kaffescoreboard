@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import cors from '@koa/cors';
@@ -5,6 +6,7 @@ import Router from 'koa-router';
 import logger from 'koa-logger';
 import Mongo from './mongo';
 import { check, user } from './user';
+import { installWebsocketsOnServer, sendNewCoffeeBrewingEvent } from './websocket';
 
 const app = new Koa();
 const router = new Router();
@@ -30,11 +32,12 @@ router
   .post('/users/:rfid', async (ctx) => {
     // const { body } = ctx.request;
     const rfidToFind = ctx.params.rfid;
-    console.log(rfidToFind);
+    console.log(`Increasing coffeescore of ${rfidToFind}`);
     await ctx.app.users.findOneAndUpdate({
       rfid: rfidToFind,
     },
     { $inc: { kaffeScore: 1 } });
+    sendNewCoffeeBrewingEvent();
     ctx.body = await ctx.app.users.findOne({ rfid: rfidToFind });
   });
 
@@ -48,6 +51,7 @@ router
            rfid: body.rfid,
          }));
 
+    console.log(valid);
     // Insert into database
     if (valid) {
       await ctx.app.users.insertOne({
@@ -70,5 +74,7 @@ app.use(cors());
 
 app.use(router.routes(), router.allowedMethods());
 
-app.listen(3000);
+const server = app.listen(3000);
+installWebsocketsOnServer(server);
+
 console.log('Listening on port 3000');
