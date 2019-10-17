@@ -14,7 +14,7 @@
     "url": "git+ssh://git@github.com/asmundh/kaffescoreboard-api.git"
   },
   "author": "asmundh",
-  "license": "ISC",
+  "license": "pay to use",
   "bugs": {
     "url": "https://github.com/asmundh/kaffescoreboard-api/issues"
   },
@@ -29,7 +29,6 @@
     "koa-logger": "^3.2.1",
     "koa-router": "^7.4.0",
     "mongodb": "^3.3.2",
-    "serialport": "^7.1.5",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {
