@@ -6,7 +6,7 @@ import Router from 'koa-router';
 import logger from 'koa-logger';
 import Mongo from './mongo';
 import { check, user } from './user';
-import { installWebsocketsOnServer, sendNewCoffeeBrewingEvent } from './websocket';
+import { installWebsocketsOnServer, sendNewCoffeeBrewingEvent, sendCardNotFound } from './websocket';
 
 const app = new Koa();
 const router = new Router();
@@ -30,21 +30,26 @@ router
 // Increment a users score. Increments "kaffeScore" by 1.
 router
   .post('/users/:rfid', async (ctx) => {
-    // const { body } = ctx.request;
     const rfidToFind = ctx.params.rfid;
-    console.log(`Increasing coffeescore of ${rfidToFind}`);
-    await ctx.app.users.findOneAndUpdate({
-      rfid: rfidToFind,
-    },
-    { $inc: { kaffeScore: 1 } });
-    sendNewCoffeeBrewingEvent();
-    ctx.body = await ctx.app.users.findOne({ rfid: rfidToFind });
+    const resp = await ctx.app.users.findOneAndUpdate(
+      { rfid: rfidToFind }, // Find by rfid
+      { $inc: { kaffeScore: 1 } }, // Increment by field
+    );
+    if (resp.value) {
+      console.log(`Increasing score of ${rfidToFind} `);
+      sendNewCoffeeBrewingEvent();
+      ctx.body = resp.value;
+    } else {
+      console.log(`No user found for ${rfidToFind}`);
+      sendCardNotFound();
+    }
   });
 
 // Create new user
 router
   .post('/users', async (ctx) => {
     const { body } = await ctx.request;
+    console.log(body);
     // Validate user data
     const valid = check(body, user)
          && !(await ctx.app.users.findOne({
@@ -59,6 +64,7 @@ router
         study: body.study,
         rfid: body.rfid,
         kaffeScore: 0,
+        year: body.year,
       });
       ctx.body = { created: true, body };
       ctx.status = 201;

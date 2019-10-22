@@ -31,3 +31,9 @@ export function sendNewCoffeeBrewingEvent() {
     client.emit('event_coffeeBrewed');
   });
 }
+
+export const sendCardNotFound = () => {
+  websocketClients.forEach((client) => {
+    client.emit('event_cardNotFound');
+  });
+};
