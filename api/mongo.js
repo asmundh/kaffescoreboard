@@ -15,6 +15,7 @@ export default function (app) {
     .then((connection) => {
       app.db = connection.db('kaffeScoreboard');
       app.users = app.db.collection('users');
+      app.rfidPaths = app.db.collection('rfidPaths');
       console.log('Database connection established');
     })
     .catch(err => console.error(err));

@@ -32,8 +32,8 @@ export function sendNewCoffeeBrewingEvent() {
   });
 }
 
-export const sendCardNotFound = () => {
+export const sendCardNotFound = (newRfid) => {
   websocketClients.forEach((client) => {
-    client.emit('event_cardNotFound');
+    client.emit('event_cardNotFound', { rfid: newRfid });
   });
 };
