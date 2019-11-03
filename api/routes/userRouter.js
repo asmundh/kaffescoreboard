@@ -4,6 +4,7 @@ import Router from 'koa-router';
 import { userCheck, user } from '../models/user';
 import { rfidPathCheck, rfidPath } from '../models/rfidPath';
 import { sendNewCoffeeBrewingEvent, sendCardNotFound } from '../websocket';
+import getSecondsSinceDate from '../utils';
 
 const router = new Router();
 
@@ -23,9 +24,18 @@ router
   });
 
 // Increment a users score. Increments "kaffeScore" by 1.
+
 router
   .post('/users/:rfid', async (ctx) => {
     const rfidToFind = ctx.params.rfid;
+    // const lastIncrementation = ctx.app.lastIncrementPath.find({}, { timeStamp: true });
+    // const secondsSinceIncrement = getSecondsSinceDate(lastIncrementation.timeStamp);
+
+    // // if (secondsSinceIncrement < (7 * 60)) {
+    // if (false) {
+    //   ctx.body = `Too frequent scan. Last scan was ${secondsSinceIncrement} seconds ago.`;
+    //   ctx.status = 403;
+    // } else {
     const resp = await ctx.app.users.findOneAndUpdate(
       { rfid: rfidToFind }, // Find by rfid
       { $inc: { kaffeScore: 1 } }, // Increment by field
@@ -36,14 +46,18 @@ router
       ctx.body = resp.value;
     } else { // If user does not exist, create an rfidPath to allow for registry
       console.log(`No user found for ${rfidToFind}`);
-      const lastRegistrationAttempt = await ctx.app.rfidPaths.find({ rfid: rfidToFind }).toArray();
+      const lastRegistrationAttempt = await ctx.app.rfidPaths.find(
+        { rfid: rfidToFind },
+      ).toArray();
       if (lastRegistrationAttempt.length > 0) { // If scanned but not registered earlier
-        console.log('Updating existing path');
-        await ctx.app.rfidPaths.findOneAndUpdate({ rfid: rfidToFind }, {
-          $set: {
-            timeStamp: Date(),
+        console.log('Updating timeStamp of existing path');
+        await ctx.app.rfidPaths.findOneAndUpdate(
+          { rfid: rfidToFind }, {
+            $set: {
+              timeStamp: Date(),
+            },
           },
-        });
+        );
       } else { // If never scanned that card
         const newRfidPath = {
           rfid: rfidToFind,
@@ -51,13 +65,13 @@ router
         };
         const valid = rfidPathCheck(newRfidPath, rfidPath);
         if (valid) {
-          console.log('Creating path');
+          console.log(`Creating path for rfid ${newRfidPath.rfid}`);
           await ctx.app.rfidPaths.insertOne(newRfidPath);
         }
       }
-      console.log(rfidToFind);
       sendCardNotFound(rfidToFind);
     }
+    // }
   });
 
 // Create new user

@@ -16,6 +16,7 @@ export default function (app) {
       app.db = connection.db('kaffeScoreboard');
       app.users = app.db.collection('users');
       app.rfidPaths = app.db.collection('rfidPaths');
+      app.lastIncrementPath = app.db.collection('lastIncrement');
       console.log('Database connection established');
     })
     .catch(err => console.error(err));

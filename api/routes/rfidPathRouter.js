@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import Router from 'koa-router';
+import getSecondsSinceDate from '../utils';
 
 
 const router = Router();
@@ -10,9 +11,7 @@ router.get('/rfidPath/:rfid', async (ctx) => {
     ctx.status = 404;
     ctx.body = { error: 'No card scanned for that rfid' };
   } else {
-    const currentDate = new Date();
-    const dbDate = new Date(resp.timeStamp);
-    const secondsSinceLastScan = (currentDate.getTime() - dbDate.getTime()) / 1000;
+    const secondsSinceLastScan = getSecondsSinceDate(resp.timeStamp);
     ctx.status = 200;
     ctx.body = { timeSinceScan: secondsSinceLastScan };
   }
