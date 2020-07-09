@@ -11,6 +11,7 @@ const user = Joi.object().keys({
   rfid: Joi.string().min(0).required(),
   kaffeScore: Joi.number().min(0).required(),
   year: Joi.number().min(1).max(6).required(),
+  lastScan: Joi.date(),
 });
 
 

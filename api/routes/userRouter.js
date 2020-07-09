@@ -4,6 +4,7 @@ import Router from 'koa-router';
 import { userCheck, user } from '../models/user';
 import { rfidPathCheck, rfidPath } from '../models/rfidPath';
 import { sendNewCoffeeBrewingEvent, sendCardNotFound } from '../websocket';
+import { timeSinceLastScanInSeconds } from '../utils';
 
 const router = new Router();
 
@@ -26,12 +27,18 @@ router
 router
   .post('/users/:rfid', async (ctx) => {
     const rfidToFind = ctx.params.rfid;
-    const resp = await ctx.app.users.findOneAndUpdate(
-      { rfid: rfidToFind }, // Find by rfid
-      { $inc: { kaffeScore: 1 } }, // Increment by field
-    );
-    if (resp.value) { // If user exists, go on to increment score by 1
-      console.log(`Increasing score of ${rfidToFind} `);
+    const resp = await ctx.app.users.findOne({ rfid: rfidToFind });
+    if (resp) { // If user exists, go on to increment score by 1
+      const lastScanTime = new Date(resp.lastScan);
+      if (lastScanTime === null || (timeSinceLastScanInSeconds(lastScanTime) > 7 * 60)) {
+        await ctx.app.users.findOneAndUpdate(
+          { rfid: rfidToFind }, // Find by rfid
+          { $inc: { kaffeScore: 1 }, $set: { lastScan: Date() } }, // Increment by field
+        );
+        console.log(`Increasing score of ${rfidToFind} `);
+      } else {
+        console.log(`Not enough time since last scan on card: ${rfidToFind}`);
+      }
       sendNewCoffeeBrewingEvent();
       ctx.body = resp.value;
     } else { // If user does not exist, create an rfidPath to allow for registry
