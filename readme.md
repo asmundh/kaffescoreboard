@@ -5,6 +5,8 @@
 ### 1. Card reader
 Attach the usb card reader.
 Then `cd` into `cardReader`.
+Create a virtualenv with `virtualenv .venv`
+If installing for the first time run `pip install -r requirements.txt`
 Activate the virtualenv with `source .venv/bin/activate`.
 Run the server with `sudo python main.py`.
 
