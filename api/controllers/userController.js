@@ -19,6 +19,31 @@ const getAllUsers = async (ctx) => {
   ctx.response.body = await ctx.app.users.find().toArray();
 };
 
+const createUser = async (ctx) => {
+  const { body } = await ctx.request;
+  console.log(body);
+  // Validate user data
+  const isValid = userCheck(body, user) && !(await ctx.app.users.findOne({
+    rfid: body.rfid,
+  }));
+  console.log(isValid);
+  // Insert into database
+  if (isValid) {
+    await ctx.app.users.insertOne({
+      name: body.name,
+      study: body.study,
+      rfid: body.rfid,
+      kaffeScore: 0,
+      year: body.year,
+    });
+    ctx.body = { created: true, body };
+    ctx.status = 201;
+  } else {
+    ctx.status = 400;
+    ctx.body = { created: false };
+  }
+}
+
 
 const incrementCoffeeScoreByRfid = async (ctx) => {
   const { rfid } = ctx.params;

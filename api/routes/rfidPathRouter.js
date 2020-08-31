@@ -1,7 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import Router from 'koa-router';
 
-
 const router = Router();
 
 router.get('/rfidPath/:rfid', async (ctx) => {
