@@ -7,6 +7,6 @@ const timeSinceLastScanInSeconds = (lastScanTime) => {
 };
 
 const isScanAttemptValid = lastScanTime => lastScanTime === null
- || (timeSinceLastScanInSeconds(lastScanTime) > nMinutesInMilis(-1));
+ || (timeSinceLastScanInSeconds(lastScanTime) > nMinutesInMilis(7));
 
 export { isScanAttemptValid };
