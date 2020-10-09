@@ -1,4 +1,5 @@
 
+const nMinutesInMilis = (amountOfMinutes) => amountOfMinutes * 1000;
 
 const timeSinceLastScanInSeconds = (lastScanTime) => {
   const currentTime = new Date();
@@ -6,6 +7,6 @@ const timeSinceLastScanInSeconds = (lastScanTime) => {
 };
 
 const isScanAttemptValid = lastScanTime => lastScanTime === null
- || (timeSinceLastScanInSeconds(lastScanTime) > 7); //* 60);
+ || (timeSinceLastScanInSeconds(lastScanTime) > nMinutesInMilis(-1));
 
-export { isScanAttemptValid, timeSinceLastScanInSeconds };
+export { isScanAttemptValid };

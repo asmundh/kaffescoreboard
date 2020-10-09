@@ -1,6 +1,7 @@
 import { rfidPathCheck, rfidPath } from '../models/rfidPath';
 import { sendNewCoffeeBrewingEvent, sendCardNotFound } from '../websocket';
 import { isScanAttemptValid } from '../utils';
+import { userCheck, user } from '../models/user';
 
 
 const getUserByRfid = async (ctx) => {
@@ -22,7 +23,6 @@ const getAllUsers = async (ctx) => {
 const createUser = async (ctx) => {
   const { body } = await ctx.request;
   console.log(body);
-  // Validate user data
   const isValid = userCheck(body, user) && !(await ctx.app.users.findOne({
     rfid: body.rfid,
   }));
@@ -35,6 +35,7 @@ const createUser = async (ctx) => {
       rfid: body.rfid,
       kaffeScore: 0,
       year: body.year,
+      lastScan: null
     });
     ctx.body = { created: true, body };
     ctx.status = 201;
@@ -48,7 +49,6 @@ const createUser = async (ctx) => {
 const incrementCoffeeScoreByRfid = async (ctx) => {
   const { rfid } = ctx.params;
   const user = await ctx.app.users.findOne({ rfid });
-  console.log(user);
   if (user) { // If user exists, go on to increment score by 1
     const lastScanTime = new Date(user.lastScan);
     if (isScanAttemptValid(lastScanTime)) {
@@ -60,9 +60,13 @@ const incrementCoffeeScoreByRfid = async (ctx) => {
     } else {
       console.log(`Not enough time since last scan on card: ${rfid}`);
     }
-    sendNewCoffeeBrewingEvent();
+    const brewerInfo = await ctx.app.users.findOne({ rfid });
     ctx.response.status = 200;
-    ctx.response.body = user;
+    ctx.response.body = brewerInfo;
+    sendNewCoffeeBrewingEvent({
+      name: brewerInfo.name,
+      score: brewerInfo.kaffeScore
+    });
   } else { // If user does not exist, create an rfidPath to allow for registry
     console.log(`No user found for ${rfid}`);
     const lastRegistrationAttempt = await ctx.app.rfidPaths.find({ rfid }).toArray();
@@ -89,4 +93,4 @@ const incrementCoffeeScoreByRfid = async (ctx) => {
   }
 };
 
-export { getUserByRfid, getAllUsers, incrementCoffeeScoreByRfid };
+export { getUserByRfid, createUser, getAllUsers, incrementCoffeeScoreByRfid };

@@ -26,9 +26,9 @@ export function installWebsocketsOnServer(server) {
   });
 }
 
-export function sendNewCoffeeBrewingEvent() {
+export function sendNewCoffeeBrewingEvent(info) {
   websocketClients.forEach((client) => {
-    client.emit('event_coffeeBrewed');
+    client.emit('event_coffeeBrewed', {brewerInfo: info});
   });
 }
 
